@@ -23,6 +23,7 @@ const elements = [
     pattern: "enterprise/frontend/src/metabase-enterprise/**",
     mode: "full", // matches the entire path, because enterprise is in a different directory
   },
+  { type: "lib/env", pattern: "frontend/src/metabase/env.*" },
   { type: "app/misc", pattern: "frontend/src/metabase/*.*" },
   { type: "shared/other", pattern: "frontend/src/*/**" },
 ];
