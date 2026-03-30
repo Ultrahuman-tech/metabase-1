@@ -512,10 +512,14 @@
                                        [:password ms/ValidPassword]]
    request]
   (check-self-or-superuser id)
-  (api/let-404 [user (t2/select-one [:model/User :id :last_login :password_salt :password],
+  (api/let-404 [user (t2/select-one [:model/User :id :last_login :password_salt :password :sso_source],
                                     :id id,
                                     :type :personal,
                                     :is_active true)]
+    ;; SSO users cannot set local passwords — prevents SSO bypass via local credential
+    (when (:sso_source user)
+      (throw (ex-info (tru "Cannot set a local password for SSO users.")
+                      {:status-code 403})))
     ;; admins are allowed to reset anyone's password (in the admin people list) so no need to check the value of
     ;; `old_password` for them regular users have to know their password, however
     (when-not api/*is-superuser?*
