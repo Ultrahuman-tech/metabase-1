@@ -1,10 +1,3 @@
-import type { FormLocation } from "metabase/databases/types";
-import type {
-  ChecklistItemCTA,
-  ChecklistItemValue,
-} from "metabase/home/components/Onboarding/types";
-import type { KeyboardShortcutId } from "metabase/palette/shortcuts";
-import type { ClickActionSection } from "metabase/visualizations/types";
 import type {
   ConcreteTableId,
   Engine,
@@ -13,7 +6,7 @@ import type {
   VisualizationDisplay,
 } from "metabase-types/api";
 
-type SimpleEventSchema = {
+export type SimpleEventSchema = {
   event: string;
   target_id?: number | null;
   triggered_from?: string | null;
@@ -22,7 +15,7 @@ type SimpleEventSchema = {
   event_detail?: string | null;
 };
 
-type ValidateEvent<
+export type ValidateEvent<
   T extends SimpleEventSchema &
     Record<Exclude<keyof T, keyof SimpleEventSchema>, never>,
 > = T;
@@ -55,17 +48,6 @@ export type DatabaseEngineSelectedEvent = ValidateEvent<{
 
 type OnboardingChecklistOpenedEvent = ValidateEvent<{
   event: "onboarding_checklist_opened";
-}>;
-
-type OnboardingChecklistItemExpandedEvent = ValidateEvent<{
-  event: "onboarding_checklist_item_expanded";
-  triggered_from: ChecklistItemValue;
-}>;
-
-type OnboardingChecklistItemCTAClickedEvent = ValidateEvent<{
-  event: "onboarding_checklist_cta_clicked";
-  triggered_from: ChecklistItemValue;
-  event_detail: ChecklistItemCTA;
 }>;
 
 export type NewsletterToggleClickedEvent = ValidateEvent<{
@@ -137,11 +119,6 @@ export type GsheetsConnectionClickedEvent = ValidateEvent<{
 export type GsheetsImportClickedEvent = ValidateEvent<{
   event: "sheets_import_by_url_clicked";
   triggered_from: "sheets-url-popup";
-}>;
-
-export type KeyboardShortcutPerformEvent = ValidateEvent<{
-  event: "keyboard_shortcut_performed";
-  event_detail: KeyboardShortcutId;
 }>;
 
 export type NewEntityInitiatedEvent = ValidateEvent<{
@@ -268,16 +245,6 @@ export type TableEditingRecordModifiedEvent = ValidateEvent<{
   target_id: number;
   triggered_from: "inline" | "modal";
   result: "success" | "error";
-}>;
-
-export type ConnectionStringParsedSuccessEvent = ValidateEvent<{
-  event: "connection_string_parsed_success";
-  triggered_from: FormLocation;
-}>;
-
-export type ConnectionStringParsedFailedEvent = ValidateEvent<{
-  event: "connection_string_parsed_failed";
-  triggered_from: FormLocation;
 }>;
 
 export type TransformTriggerManualRunEvent = ValidateEvent<{
@@ -540,11 +507,6 @@ export type BookmarkDocumentEvent = ValidateEvent<{
   triggered_from: "collection_list" | "document_header";
 }>;
 
-export type ClickActionPerformedEvent = ValidateEvent<{
-  event: "click_action";
-  triggered_from: ClickActionSection;
-}>;
-
 export type RemoteSyncBranchSwitchedEvent = ValidateEvent<{
   event: "remote_sync_branch_switched";
   triggered_from: "admin-settings" | "app-bar";
@@ -733,7 +695,19 @@ export type UnsavedChangesWarningDisplayedEvent = ValidateEvent<{
   target_id: number | null;
 }>;
 
+// Feature modules can extend this interface via declaration merging
+// to add their own event types to SimpleEvent
+// Example:
+//   declare module "metabase-types/analytics/event" {
+//     interface SimpleEventExtensions {
+//       myFeatureEvent: ValidateEvent<{ event: "my_event"; ... }>;
+//     }
+//   }
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- extended via declaration merging in feature modules
+export interface SimpleEventExtensions {}
+
 export type SimpleEvent =
+  | SimpleEventExtensions[keyof SimpleEventExtensions]
   | CustomSMTPSetupClickedEvent
   | CustomSMTPSetupSuccessEvent
   | CSVUploadClickedEvent
@@ -744,14 +718,11 @@ export type SimpleEvent =
   | NewIFrameCardCreatedEvent
   | NewsletterToggleClickedEvent
   | OnboardingChecklistOpenedEvent
-  | OnboardingChecklistItemExpandedEvent
-  | OnboardingChecklistItemCTAClickedEvent
   | MoveToTrashEvent
   | ErrorDiagnosticModalOpenedEvent
   | ErrorDiagnosticModalSubmittedEvent
   | GsheetsConnectionClickedEvent
   | GsheetsImportClickedEvent
-  | KeyboardShortcutPerformEvent
   | NewEntityInitiatedEvent
   | NewButtonClickedEvent
   | NewButtonItemClickedEvent
@@ -764,8 +735,6 @@ export type SimpleEvent =
   | DashboardFilterMovedEvent
   | EmbedWizardEvent
   | TableEditingEvent
-  | ConnectionStringParsedSuccessEvent
-  | ConnectionStringParsedFailedEvent
   | TransformTriggerManualRunEvent
   | TransformJobTriggerManualRunEvent
   | TransformCreatedEvent
@@ -790,6 +759,5 @@ export type SimpleEvent =
   | MetadataEditEvent
   | BookmarkEvent
   | RemoteSyncEvent
-  | ClickActionPerformedEvent
   | DataStudioEvent
   | UnsavedChangesWarningDisplayedEvent;

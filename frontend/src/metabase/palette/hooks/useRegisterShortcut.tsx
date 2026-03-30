@@ -2,9 +2,21 @@ import { type ActionImpl, KBarContext, useRegisterActions } from "kbar";
 import { type DependencyList, useContext } from "react";
 
 import { trackSimpleEvent } from "metabase/lib/analytics";
+import type { ValidateEvent } from "metabase-types/analytics/event";
 
 import { type KeyboardShortcutId, shortcuts } from "../shortcuts";
 import type { ShortcutAction } from "../types";
+
+type KeyboardShortcutPerformEvent = ValidateEvent<{
+  event: "keyboard_shortcut_performed";
+  event_detail: KeyboardShortcutId;
+}>;
+
+declare module "metabase-types/analytics/event" {
+  interface SimpleEventExtensions {
+    keyboardShortcutPerform: KeyboardShortcutPerformEvent;
+  }
+}
 
 export type RegisterShortcutProps = {
   id: KeyboardShortcutId;
